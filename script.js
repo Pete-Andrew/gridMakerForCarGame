@@ -5,7 +5,8 @@ const generateBtn = document.getElementById('generate');
 
 // Create a 6x6 grid
 const gridSize = 6;
-//This creates a 2D array (cellData) of size 6x6, initialized with null values.
+//This creates a 2D array (cellData) of size 6x6, initialized with null values. 
+//IT DOES NOT draw the actual array to screen. 
 //Array.from({ length: gridSize } creates an array of 6 elements e.g. [undefined, undefined, undefined, undefined, undefined, undefined]
 //for each element in the array the call back is executed. 
 //() => Array(gridSize).fill(null) Creates a new array of size gridSize (6 in this case) and fills the array with Null, e.g [null, null, null, null, null, null]
@@ -13,12 +14,14 @@ const gridSize = 6;
 //when this is run through the for loop below you end up with an array of 6 columns and rows, I've pasted this at the end of the JS as an example. 
 //A callback function is simply a function passed as an argument to another function and executed at a later time (or for each element in this case).
 //In Array.from, the callback function determines the value for each element in the array being created.
+//the Array constructor does not need the 'new' prefix, unlike other constructors
 const cellData = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
 console.log(cellData);
 
+//this for loop draws the physical grid and pushes info to the cellData array created above
 for (let y = 0; y < gridSize; y++) {
     for (let x = 0; x < gridSize; x++) {
-        //You can add attributes (e.g.) to const cell as it is not an object not a primitive value, objects. 
+        //You can add attributes (e.g. className, dataSet etc.) to const cell as it is not an object not a primitive value, objects. 
         //Primitive Values: Numbers, strings, booleans, null, undefined, and symbols.
         //you can modify the properties or methods of the object because the const keyword only prevents reassignment of the variable itself—not its contents.
         //div is a DOM element, a DOM element is an object
@@ -26,10 +29,11 @@ for (let y = 0; y < gridSize; y++) {
         //Assigns a class name cell to the <div>
         cell.className = 'cell';
         //Sets custom data-x and data-y attributes on the cell. These store the cell's coordinates (column and row index, respectively)
+        //And pass them to the cellData array when clicked on
         cell.dataset.x = x;
         cell.dataset.y = y;
 
-        //updates the cell colour values when clicked on. 
+        //updates the cell colour values when clicked on and pushed the values to the cellData array. 
         cell.addEventListener('click', () => {
             const color = colorPicker.value;
             cell.style.backgroundColor = color;
@@ -39,13 +43,12 @@ for (let y = 0; y < gridSize; y++) {
     }
 }
 
-
-
-// Function to generate JSON objects
+//Function to generate JSON objects
 function generateJSON() {
     const visited = Array.from({ length: gridSize }, () =>
         Array(gridSize).fill(false)
     );
+    //the array that stores the JSON data
     const cars = [];
 
     function dfs(x, y, color, bounds) {
