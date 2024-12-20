@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grid to Coordinates</title>
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 50px);
+      grid-template-rows: repeat(6, 50px);
+      gap: 2px;
+    }
+    .cell {
+      width: 50px;
+      height: 50px;
+      border: 1px solid #ddd;
+      background-color: white;
+      cursor: pointer;
+    }
+    .color-picker {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="color-picker">
+    <label for="color">Pick a color:</label>
+    <input type="color" id="color" value="#ff0000">
+    <button id="generate">Generate JSON</button>
+  </div>
+  <pre id="output"></pre>
+
+  <script src="script.js"></script>
+  
+</body>
+</html>
