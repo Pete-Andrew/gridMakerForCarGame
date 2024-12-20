@@ -37,48 +37,62 @@ for (let y = 0; y < gridSize; y++) {
         cell.addEventListener('click', () => {
             const color = colorPicker.value;
             cell.style.backgroundColor = color;
-            cellData[y][x] = color; // Save color to grid data
+            cellData[y][x] = color; // Save color to grid data, it colours the correct cell as the [y][x] are the cell co-ordinates
+            //console.log(cellData[x][y]); //returns the #colour value when the colour is changed, cellData is the array that holds colour info. 
+            console.log(cell.dataset); //gives the [y][x] value of the most recently clicked on cell.
+            console.log(cellData); // visually shows the whole array in the console
         });
         grid.appendChild(cell);
     }
 }
 
 //Function to generate JSON objects
+
+//const visited is a 2D array of the same size as the grid. It keeps track of which cells have already been processed.
+//Initially, all values are set to false, meaning no cell has been visited yet.
 function generateJSON() {
     const visited = Array.from({ length: gridSize }, () =>
         Array(gridSize).fill(false)
     );
-    //the array that stores the JSON data
+    //The array that stores the JSON data
     const cars = [];
 
+    //Depth-First Search (DFS) Function
+    //Depth-first search (DFS) is an algorithm for traversing or searching tree or graph data structures. 
+    //The algorithm starts at the root node and explores as far as possible along each branch before backtracking.
     function dfs(x, y, color, bounds) {
-        //
         if (
-            x < 0 ||
-            y < 0 ||
-            x >= gridSize ||
-            y >= gridSize ||
-            visited[y][x] ||
-            cellData[y][x] !== color
+            x < 0 ||                    // Check if the cell is out of bounds
+            y < 0 ||                    // Check if the cell is out of bounds
+            x >= gridSize ||            // Check if the cell exceeds grid dimensions
+            y >= gridSize ||            // Check if the cell exceeds grid dimensions
+            visited[y][x] ||            // Check if the cell has already been processed
+            cellData[y][x] !== color    // Check if the cell's color matches the target color
+            // if any of these values are out of bounds then the function returns.
         ) {
             return;
         }
-        visited[y][x] = true;
+
+        visited[y][x] = true; // Mark the current cell as visited
+        //updates the bounds of the car e.g. Update minimum/maximum x co-ordinate/y co-ordinate
         bounds.minX = Math.min(bounds.minX, x);
         bounds.maxX = Math.max(bounds.maxX, x);
         bounds.minY = Math.min(bounds.minY, y);
         bounds.maxY = Math.max(bounds.maxY, y);
-        dfs(x + 1, y, color, bounds);
-        dfs(x - 1, y, color, bounds);
-        dfs(x, y + 1, color, bounds);
-        dfs(x, y - 1, color, bounds);
+
+        //recursively calls the dfs (Depth-First Search) function on neighboring cells
+        dfs(x + 1, y, color, bounds); // Check the cell to the right
+        dfs(x - 1, y, color, bounds); // Check the cell to the left
+        dfs(x, y + 1, color, bounds); // Check the cell below
+        dfs(x, y - 1, color, bounds); // Check the cell above
     }
 
     for (let y = 0; y < gridSize; y++) {
         for (let x = 0; x < gridSize; x++) {
             if (!visited[y][x] && cellData[y][x]) {
-                const bounds = { minX: x, maxX: x, minY: y, maxY: y };
-                dfs(x, y, cellData[y][x], bounds);
+                const bounds = { minX: x, maxX: x, minY: y, maxY: y }; // Initialize bounding box
+                dfs(x, y, cellData[y][x], bounds); // Groups connected cells 
+
                 //pushes the object to the cars Array
                 cars.push({
                     x: bounds.minX * 150,
@@ -96,8 +110,7 @@ function generateJSON() {
                                         carRightEdge: (x*150)+(bounds.maxX - bounds.minX + 1) * 150,
                                         carTop: bounds.minY * 150,  
                                         carBottom: bounds.minY * 150 + ((bounds.maxY - bounds.minY + 1) * 150)}
-//example from the cars game
-// { x: 600, y: 600, width: 150, height: 300, carLeftEdge: 600, carRightEdge: 750, carTop: 600, carBottom: 900, color: 'brown', orientation: 'vrt', hasMoved: false, initialPosition: { carLeftEdge: 600, carRightEdge: 750, carTop: 600, carBottom: 900 }}
+
                 });
             }
         }
@@ -112,6 +125,9 @@ function generateJSON() {
 
 //listener on the 'create JSON' button, calls the generateJSON func. 
 generateBtn.addEventListener('click', generateJSON);
+
+//example car object from the cars game. 
+// { x: 600, y: 600, width: 150, height: 300, carLeftEdge: 600, carRightEdge: 750, carTop: 600, carBottom: 900, color: 'brown', orientation: 'vrt', hasMoved: false, initialPosition: { carLeftEdge: 600, carRightEdge: 750, carTop: 600, carBottom: 900 }}
 
 //example array produced by the const cellData
 // [
