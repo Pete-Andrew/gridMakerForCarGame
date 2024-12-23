@@ -87,10 +87,12 @@ function generateJSON() {
         dfs(x, y - 1, color, bounds); // Check the cell above
     }
 
-    for (let y = 0; y < gridSize; y++) {
+    for (let y = 0; y < gridSize; y++) {  //nested for loops iterate through the cells of the grid
         for (let x = 0; x < gridSize; x++) {
+
             if (!visited[y][x] && cellData[y][x]) {
                 const bounds = { minX: x, maxX: x, minY: y, maxY: y }; // Initialize bounding box
+                
                 dfs(x, y, cellData[y][x], bounds); // Groups connected cells 
 
                 //pushes the object to the cars Array
@@ -102,7 +104,7 @@ function generateJSON() {
                     carLeftEdge: bounds.minX * 150,
                     carRightEdge: (x*150)+(bounds.maxX - bounds.minX + 1) * 150,
                     carTop: bounds.minY * 150,
-                    CarBottom: bounds.minY * 150 + ((bounds.maxY - bounds.minY + 1) * 150),
+                    carBottom: bounds.minY * 150 + ((bounds.maxY - bounds.minY + 1) * 150),
                     color: cellData[y][x],
                     orientation: bounds.minX === bounds.maxX ? 'vrt' : 'hrz',
                     hasMoved: false,
