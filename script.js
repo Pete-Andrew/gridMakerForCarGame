@@ -2,6 +2,12 @@ const grid = document.querySelector('.grid');
 const colorPicker = document.getElementById('color');
 const output = document.getElementById('output');
 const generateBtn = document.getElementById('generate');
+const undo = document.getElementById('undo');
+const redo = document.getElementById('redo');
+
+const cellOrder = []
+let undoIndex = 0;
+let cellOrderArrLength = cellOrder.length;
 
 // Create a 6x6 grid
 const gridSize = 6;
@@ -15,8 +21,13 @@ const gridSize = 6;
 //A callback function is simply a function passed as an argument to another function and executed at a later time (or for each element in this case).
 //In Array.from, the callback function determines the value for each element in the array being created.
 //the Array constructor does not need the 'new' prefix, unlike other constructors
+
 const cellData = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
-console.log(cellData);
+//console.log(cellData);
+
+//BUG, need to add an undo button
+//need to add a 'copy all' button for the JSON out put
+//need to add colour swatches 
 
 //this for loop draws the physical grid and pushes info to the cellData array created above
 for (let y = 0; y < gridSize; y++) {
@@ -39,10 +50,48 @@ for (let y = 0; y < gridSize; y++) {
             cell.style.backgroundColor = color;
             cellData[y][x] = color; // Save color to grid data, it colours the correct cell as the [y][x] are the cell co-ordinates
             //console.log(cellData[x][y]); //returns the #colour value when the colour is changed, cellData is the array that holds colour info. 
-            console.log(cell.dataset); //gives the [y][x] value of the most recently clicked on cell.
-            console.log(cellData); // visually shows the whole array in the console
+            console.log("cell.dataset", cell.dataset); //gives the [y][x] value of the most recently clicked on cell.
+            console.log("cellData", cellData); // visually shows the whole array in the console
+            
+            //Create a deep copy of `cellData` and push it to `cellOrder`. 
+            //If cellData is not deep copied then console logs of cellOrder will give the same value for each incidence of the array
+            //as the console log will only reference the cellOrder array in it's current state (e.g. will not show past states). The deep copy solves this.  
+            const cellDataCopy = JSON.parse(JSON.stringify(cellData));
+            cellOrder.push(cellDataCopy);
+            console.log("cellOrder:", cellOrder);
+            cellOrderArrLength = cellOrder.length;
+            console.log("cellOrderArrLength", cellOrderArrLength);
+            undoIndex = cellOrderArrLength;
         });
+        
         grid.appendChild(cell);
+    }
+}
+
+
+//need to be able to move backwards and forwards in the cellOrder array.
+//need a variable to hold where you are in the array ('undoIndex');
+//need to run the 
+
+function undoFunc () {
+    console.log("Undo clicked");
+    if(undoIndex > 0) {
+    undoIndex--;
+    console.log("undoIndex", undoIndex);
+    //need to clear the value of the last clicked on cell.
+    //create an array to hold which cell was clicked on most recently
+    } else {
+        console.log("Nothing left to undo");
+    }
+}
+
+function redoFunc () {
+    console.log("Re-do clicked");
+    if(undoIndex < cellOrderArrLength) {
+        undoIndex++;
+        console.log("UndoIndex", undoIndex);
+    } else {
+        console.log("Cannot exceed cellOrderArrLength"); 
     }
 }
 
@@ -127,6 +176,11 @@ function generateJSON() {
 
 //listener on the 'create JSON' button, calls the generateJSON func. 
 generateBtn.addEventListener('click', generateJSON);
+
+//Undo event listener
+undo.addEventListener('click', undoFunc)
+//Redo event listener
+redo.addEventListener('click', redoFunc)
 
 //example car object from the cars game. 
 // { x: 600, y: 600, width: 150, height: 300, carLeftEdge: 600, carRightEdge: 750, carTop: 600, carBottom: 900, color: 'brown', orientation: 'vrt', hasMoved: false, initialPosition: { carLeftEdge: 600, carRightEdge: 750, carTop: 600, carBottom: 900 }}
