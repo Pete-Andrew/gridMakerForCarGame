@@ -5,7 +5,16 @@ const generateBtn = document.getElementById('generate');
 const undo = document.getElementById('undo');
 const redo = document.getElementById('redo');
 
-const cellOrder = []
+const redBtn = document.getElementById('redBtn');
+const greenBtn = document.getElementById('greenBtn');
+const blueBtn = document.getElementById('blueBtn');
+const yellowBtn = document.getElementById('yellowBtn');
+const pinkBtn = document.getElementById('pinkBtn');
+
+
+
+let cellOrder = [];
+let cellDataCopy;
 let undoIndex = 0;
 let cellOrderArrLength = cellOrder.length;
 
@@ -22,13 +31,14 @@ const gridSize = 6;
 //In Array.from, the callback function determines the value for each element in the array being created.
 //the Array constructor does not need the 'new' prefix, unlike other constructors
 
-const cellData = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
+let cellData = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
 //console.log(cellData);
 
 //BUG, need to add an undo button
 //need to add a 'copy all' button for the JSON out put
 //need to add colour swatches 
 
+function draw () {
 //this for loop draws the physical grid and pushes info to the cellData array created above
 for (let y = 0; y < gridSize; y++) {
     for (let x = 0; x < gridSize; x++) {
@@ -50,13 +60,14 @@ for (let y = 0; y < gridSize; y++) {
             cell.style.backgroundColor = color;
             cellData[y][x] = color; // Save color to grid data, it colours the correct cell as the [y][x] are the cell co-ordinates
             //console.log(cellData[x][y]); //returns the #colour value when the colour is changed, cellData is the array that holds colour info. 
-            console.log("cell.dataset", cell.dataset); //gives the [y][x] value of the most recently clicked on cell.
-            console.log("cellData", cellData); // visually shows the whole array in the console
+            //console.log("cell.dataset", cell.dataset); //gives the [y][x] value of the most recently clicked on cell.
+            //console.log("cellData", cellData); // visually shows the whole array in the console
             
             //Create a deep copy of `cellData` and push it to `cellOrder`. 
             //If cellData is not deep copied then console logs of cellOrder will give the same value for each incidence of the array
             //as the console log will only reference the cellOrder array in it's current state (e.g. will not show past states). The deep copy solves this.  
-            const cellDataCopy = JSON.parse(JSON.stringify(cellData));
+            cellDataCopy = JSON.parse(JSON.stringify(cellData));
+            //cell order is an array that holds a copy of the array each time a cell is added. 
             cellOrder.push(cellDataCopy);
             console.log("cellOrder:", cellOrder);
             cellOrderArrLength = cellOrder.length;
@@ -67,32 +78,93 @@ for (let y = 0; y < gridSize; y++) {
         grid.appendChild(cell);
     }
 }
+}
+
 
 
 //need to be able to move backwards and forwards in the cellOrder array.
 //need a variable to hold where you are in the array ('undoIndex');
 //need to run the 
 
-function undoFunc () {
-    console.log("Undo clicked");
-    if(undoIndex > 0) {
-    undoIndex--;
-    console.log("undoIndex", undoIndex);
-    //need to clear the value of the last clicked on cell.
-    //create an array to hold which cell was clicked on most recently
-    } else {
+function undoFunc() {
+    //console.log("Undo clicked");
+    if (undoIndex > 0) {
+        //reduces the length of the undo index
+        undoIndex--;
+        console.log("cellOrder - holds past array info", cellOrder);
+        console.log("undoIndex", undoIndex);
+        console.log("cellOrder[undoIndex]", cellOrder[undoIndex]);
+
+        // Clear the grid, removes all child elements from the gird
+        grid.innerHTML = "";
+      
+        console.log("CellOrder length", cellOrder.length);
+
+        // Repopulate the grid using the state from cellOrder[undoIndex]
+        // Iterate through the 2D array stored in cellOrder[undoIndex] to reconstruct the grid.
+        let previousState = cellOrder[undoIndex-1]; //-1 as the array is zero indexed
+        for (let y = 0; y < gridSize; y++) {
+            for (let x = 0; x < gridSize; x++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.x = x;
+                cell.dataset.y = y;
+
+                //console.log(previousState); This churns out tons of console.logs
+                // catches error if previous state is less than 1
+                if(previousState == undefined) { 
+                    draw();
+                    return; //return stops the draw() being called loads of times.
+                }
+                // Apply the color from the previous state if it exists
+                else if (previousState[y][x]) {
+                    cell.style.backgroundColor = previousState[y][x];
+                } 
+
+                // Reattach the click event listener
+                cell.addEventListener('click', () => {
+                    const color = colorPicker.value;
+                    cell.style.backgroundColor = color;
+                    cellData[y][x] = color;
+
+                    // Create a deep copy of `cellData` and push it to `cellOrder`
+                    cellDataCopy = JSON.parse(JSON.stringify(cellData));
+                    cellOrder.push(cellDataCopy);
+                    console.log("cellOrder:", cellOrder);
+                    cellOrderArrLength = cellOrder.length;
+                    console.log("cellOrderArrLength", cellOrderArrLength);
+                    undoIndex = cellOrderArrLength;
+                });
+
+                grid.appendChild(cell);
+            }
+        }
+
+        // Update the cellData array to match the previous state
+        cellData = JSON.parse(JSON.stringify(previousState));
+    } else if (undoIndex == 0) {
         console.log("Nothing left to undo");
+        grid.innerHTML = "";
+        cellOrder = [];
+        draw();
+        
+        
     }
 }
+
+// Add the undo button event listener
+undo.addEventListener('click', undoFunc);
 
 function redoFunc () {
     console.log("Re-do clicked");
     if(undoIndex < cellOrderArrLength) {
         undoIndex++;
         console.log("UndoIndex", undoIndex);
+        
     } else {
         console.log("Cannot exceed cellOrderArrLength"); 
     }
+    
 }
 
 //Function to generate JSON objects
@@ -173,6 +245,14 @@ function generateJSON() {
     //returns the output to screen as a JSON object
     output.textContent = JSON.stringify(cars, null, 2);
 }
+
+draw();
+
+redBtn.addEventListener('click', redBtnClick);
+function redBtnClick() {
+    colorPicker.value = '#1aff1d';
+}
+
 
 //listener on the 'create JSON' button, calls the generateJSON func. 
 generateBtn.addEventListener('click', generateJSON);
