@@ -5,14 +5,6 @@ const generateBtn = document.getElementById('generate');
 const undo = document.getElementById('undo');
 const redo = document.getElementById('redo');
 
-const redBtn = document.getElementById('redBtn');
-const greenBtn = document.getElementById('greenBtn');
-const blueBtn = document.getElementById('blueBtn');
-const yellowBtn = document.getElementById('yellowBtn');
-const pinkBtn = document.getElementById('pinkBtn');
-
-
-
 let cellOrder = [];
 let cellDataCopy;
 let undoIndex = 0;
@@ -34,7 +26,7 @@ const gridSize = 6;
 let cellData = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
 //console.log(cellData);
 
-//BUG, need to add an undo button
+//BUG, need to add an undo button //undo button still has issues...
 //need to add a 'copy all' button for the JSON out put
 //need to add colour swatches 
 
@@ -58,6 +50,12 @@ for (let y = 0; y < gridSize; y++) {
         cell.addEventListener('click', () => {
             const color = colorPicker.value;
             cell.style.backgroundColor = color;
+
+            if (color == '#ffffff') {
+                console.log("White");
+                return; //exits the function if the cell is white e.g. null.
+            };
+
             cellData[y][x] = color; // Save color to grid data, it colours the correct cell as the [y][x] are the cell co-ordinates
             //console.log(cellData[x][y]); //returns the #colour value when the colour is changed, cellData is the array that holds colour info. 
             //console.log("cell.dataset", cell.dataset); //gives the [y][x] value of the most recently clicked on cell.
@@ -79,8 +77,6 @@ for (let y = 0; y < gridSize; y++) {
     }
 }
 }
-
-
 
 //need to be able to move backwards and forwards in the cellOrder array.
 //need a variable to hold where you are in the array ('undoIndex');
@@ -248,10 +244,43 @@ function generateJSON() {
 
 draw();
 
-redBtn.addEventListener('click', redBtnClick);
-function redBtnClick() {
-    colorPicker.value = '#1aff1d';
-}
+//creates an object that holds all the colours, colour names are the same as the element ID
+const colorMapping = {
+    redBtn: '#ff0000',
+    greenBtn: '#00c500',
+    blueBtn: '#0000ff',
+    pinkBtn: '#ffc0cb',
+    yellowBtn: '#ffff00',
+    darkGreenBtn: '#006400',
+    lightBlueBtn: '#87cefa',
+    orangeBtn: '#ffa500',
+    darkPurpleBtn: '#7e00a5',
+    lightPurpleBtn: '#ff00f2',
+    brownBtn:'#a52a2a',
+    greyBtn:'#808080',
+    oliveBtn:'#808000',
+    nullBtn: '#ffffff',
+
+};
+
+//Object.Keys(colorMapping) - Returns the names of the enumerable string properties and methods of an object. 
+//you can then perform a .forEach(using the button ID => )
+Object.keys(colorMapping).forEach(btnId => {
+    const button = document.getElementById(btnId);
+    button.addEventListener('click', () => {
+        colorPicker.value = colorMapping[btnId]; //takes the ID from the HTML button name and uses it to find the correct pair/colour in the colorMapping object
+    });
+});
+
+//This function works as replacement for the following set up that would have to be created for each colour:
+
+// redBtn.addEventListener('click', redBtnClick);
+// function redBtnClick() {
+//     colorPicker.value = '#ff0000';
+// }
+
+
+//BUG, need a copy JSON button
 
 
 //listener on the 'create JSON' button, calls the generateJSON func. 
@@ -260,7 +289,7 @@ generateBtn.addEventListener('click', generateJSON);
 //Undo event listener
 undo.addEventListener('click', undoFunc)
 //Redo event listener
-redo.addEventListener('click', redoFunc)
+//redo.addEventListener('click', redoFunc)
 
 //example car object from the cars game. 
 // { x: 600, y: 600, width: 150, height: 300, carLeftEdge: 600, carRightEdge: 750, carTop: 600, carBottom: 900, color: 'brown', orientation: 'vrt', hasMoved: false, initialPosition: { carLeftEdge: 600, carRightEdge: 750, carTop: 600, carBottom: 900 }}
