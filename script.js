@@ -239,24 +239,26 @@ function generateJSON() {
     //console.log(cellData);
     //console.log("cars", cars);
 
-    // this replaces the simpler JSON output "output.textContent = JSON.stringify(cars, null, 2);" as it provides neater, more compact JSON
-    function formatJSONByX(jsonObject) { //accepts JSON object as a value
-        return JSON.stringify(jsonObject, (key, value) => { //JSON stringify called with 3 parameters, A custom replacer function (key, value) that alters the behavior of how arrays are processed.
-            if (Array.isArray(value)) { //Checks if the current value being processed is an array
-                return value.map(obj => //if true, it maps through the array
-                    JSON.stringify(obj, null, 0).replace(/[\{\}]/g, '') // Each object in the array is stringified into a single-line JSON string. Remove curly braces temporarily for easier reformatting later
+    function formatJSONByX(jsonObject) {
+        return JSON.stringify(jsonObject, (key, value) => {
+            if (Array.isArray(value)) {
+                return value.map(obj => 
+                    JSON.stringify(obj, null, 0) // Convert each object to a single-line JSON string
                 );
             }
-            return value; //Returns the original value unchanged if it's not an array.
-        }, 2) // Indentation set to 2 for default pretty-printing.
- 
-        //uses regular expressions to tidy the JSON. 
-        .replace(/"\[|\]"/g, '') // Remove surrounding quotes from the array
-        .replace(/\\/g, '') // Remove escape characters
-        .replace(/,{"x"/g, ',\n  {"x"') // Add new line before each "x" value
-        .replace(/^\s*{\s*/gm, '{ ') // Align properties horizontally within objects
-        .replace(/\s*}\s*$/gm, ' }'); // Close the horizontal alignment
+            return value; // Leave other values unchanged
+        }, 2)
+            .replace(/^\s*"\[|"\]$/g, '') // Remove surrounding quotes from the array
+            .replace(/\\/g, '') // Remove escape characters
+            .replace(/},\s*{/g, '},\n  {') // Add newlines between objects in the array
+            .replace(/^\s*"/gm, '') // Remove leading quotes at the start of each object
+            .replace(/"$/gm, '') // Remove trailing quotes at the end of each object
+            .replace(/^\s*{/, '[{') // Add opening bracket for the array
+            .replace(/}$/, '}]'); // Add closing bracket for the array
     }
+    
+    
+
     
     // Use the custom function to format the JSON
     output.textContent = formatJSONByX(cars);
