@@ -255,7 +255,7 @@ function generateJSON() {
             .replace(/"$/gm, '') // Remove trailing quotes at the end of each object
             .replace(/^\s*{/, '[{') // Add opening bracket for the array
             .replace(/}$/, '}]') // Add closing bracket for the array
-            .replace(/}",/g, '},',);
+            .replace(/}",/g, '},',); //remove the random final "
     }
     
     // Use the custom function to format the JSON
