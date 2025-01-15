@@ -254,11 +254,9 @@ function generateJSON() {
             .replace(/^\s*"/gm, '') // Remove leading quotes at the start of each object
             .replace(/"$/gm, '') // Remove trailing quotes at the end of each object
             .replace(/^\s*{/, '[{') // Add opening bracket for the array
-            .replace(/}$/, '}]'); // Add closing bracket for the array
+            .replace(/}$/, '}]') // Add closing bracket for the array
+            .replace(/}",/g, '},',);
     }
-    
-    
-
     
     // Use the custom function to format the JSON
     output.textContent = formatJSONByX(cars);
